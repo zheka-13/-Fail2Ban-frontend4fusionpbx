@@ -16,7 +16,8 @@ function check_socket()
 
 function list_jails()
 { global $f2b; $jails=array();
-  $erg=@exec('fail2ban-client status | grep "Jail list:" | awk -F ":" \'{print $2}\' | awk \'{$1=$1;print}\'');
+  $erg=exec('/usr/local/bin/fail2ban-client banned', $output);
+  var_dump($output);
   $erg=explode(",",$erg); 
   foreach($erg as $i=>$j){ $jails[trim($j)]=false; }
   ksort($jails); return $jails;
