@@ -33,6 +33,112 @@ class Fail2BanService
         return json_decode(str_replace("'", '"', $line), true);
     }
 
+    public function addToWhitelist($ip)
+    {
+        if (!$this->validateIp($ip)){
+            return false;
+        }
+        $content  = file_get_contents($this->config['conf']);
+        $conf_line = "";
+        $conf_index = 0;
+        $lines = explode("\n", $content);
+        foreach ($lines as $key => $line){
+            if (strpos($line, "ignoreip") !== false && substr($line, 0, 1) !== "#"){
+                $conf_line = $line;
+                $conf_index = $key;
+                break;
+            }
+        }
+        $ips =  $this->getIpsFromString($conf_line);
+        $ips[] = $ip;
+        if ($conf_index == 0){
+            foreach ($lines as $key => $line){
+                if (strpos($line, "#ignoreip") !== false){
+                    $conf_index = $key;
+                    break;
+                }
+            }
+        }
+        if ($conf_index == 0){
+            foreach ($lines as $key => $line){
+                if (trim($line) == "[DEFAULT]"){
+                    array_splice( $lines, $key+1, 0, "");
+                    $conf_index = $key+1;
+                    break;
+                }
+            }
+        }
+        if ($conf_index == 0){
+            $lines[] = "[DEFAULT]";
+            $lines[] = "";
+            $conf_index = count($lines)-1;
+        }
+        if ($conf_index == 0){
+            return false;
+        }
+
+        $lines[$conf_index] = "ignoreip = ".implode(" ", $ips);
+        file_put_contents($this->config['conf'], implode("\n", $lines));
+        $this->reload();
+        return true;
+    }
+
+    public function removeFromWhtelist($ip)
+    {
+        if (!$this->validateIp($ip)){
+            return false;
+        }
+        $content  = file_get_contents($this->config['conf']);
+        $conf_line = "";
+        $conf_index = 0;
+        $lines = explode("\n", $content);
+        foreach ($lines as $key => $line){
+            if (strpos($line, "ignoreip") !== false && substr($line, 0, 1) !== "#"){
+                $conf_line = $line;
+                $conf_index = $key;
+                break;
+            }
+        }
+        if (empty($conf_index)){
+            return false;
+        }
+        $ips =  $this->getIpsFromString($conf_line);
+        if (($ip_key = array_search($ip, $ips)) !== false) {
+            unset($ips[$ip_key]);
+        }
+        $lines[$conf_index] = "ignoreip = ".implode(" ", $ips);
+        file_put_contents($this->config['conf'], implode("\n", $lines));
+        $this->reload();
+        return true;
+    }
+
+    public function getWhitelistIps()
+    {
+        $content  = file_get_contents($this->config['conf']);
+        $conf_line = "";
+        $lines = explode("\n", $content);
+        foreach ($lines as $line){
+            if (strpos($line, "ignoreip") !== false && substr($line, 0, 1) !== "#"){
+                $conf_line = $line;
+                break;
+            }
+        }
+        return $this->getIpsFromString($conf_line);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function whitelistCheck()
+    {
+        if (!is_file($this->config['conf'])){
+            throw new Exception("no_conf");
+        }
+        if (!is_writable($this->config['conf'])){
+            throw new Exception("no_conf");
+        }
+    }
+
     /**
      * @return void
      * @throws Exception
@@ -47,6 +153,12 @@ class Fail2BanService
     {
         return $this->config['socket'];
     }
+
+    public function getConf()
+    {
+        return $this->config['conf'];
+    }
+
 
     public function ban($jail, $ip)
     {
@@ -64,6 +176,8 @@ class Fail2BanService
         return false;
     }
 
+
+
     public function unban($jail, $ip)
     {
         if (empty($jail) || empty($ip)){
@@ -75,6 +189,11 @@ class Fail2BanService
             return true;
         }
         return false;
+    }
+
+    private function reload()
+    {
+        exec($this->config['bin']." reload");
     }
 
     /**
@@ -111,6 +230,29 @@ class Fail2BanService
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param $line
+     * @return array
+     */
+    private function getIpsFromString($line)
+    {
+        if (empty($line)){
+            return [];
+        }
+        $tmp = explode(" ", preg_replace("/\s+/", " ", $line));
+        $ips = [];
+        foreach ($tmp as $ip){
+            if (strpos($ip, "ignore") !== false){
+                continue;
+            }
+            if (strpos($ip, "=") !== false){
+                continue;
+            }
+            $ips[] = trim($ip);
+        }
+        return $ips;
     }
 
 

@@ -44,5 +44,17 @@
                 $apps[$x]['permissions'][$y]['name'] = "fail2ban_unban";
                 $apps[$x]['permissions'][$y]['groups'][] = "superadmin";
                 $apps[$x]['permissions'][$y]['groups'][] = "admin";
+				$y++;
+				$apps[$x]['permissions'][$y]['name'] = "fail2ban_whitelist_view";
+				$apps[$x]['permissions'][$y]['groups'][] = "superadmin";
+				$apps[$x]['permissions'][$y]['groups'][] = "admin";
+				$y++;
+				$apps[$x]['permissions'][$y]['name'] = "fail2ban_whitelist_add";
+				$apps[$x]['permissions'][$y]['groups'][] = "superadmin";
+				$apps[$x]['permissions'][$y]['groups'][] = "admin";
+				$y++;
+				$apps[$x]['permissions'][$y]['name'] = "fail2ban_whitelist_remove";
+				$apps[$x]['permissions'][$y]['groups'][] = "superadmin";
+				$apps[$x]['permissions'][$y]['groups'][] = "admin";
 
 ?>

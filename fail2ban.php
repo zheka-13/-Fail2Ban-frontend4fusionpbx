@@ -97,6 +97,7 @@
     echo "<div class='action_bar' id='action_bar'>\n";
     echo "  <div class='heading'><b>".$text['title-fail2ban']."</b> Fail2ban ".$version." ".$text['fail2ban-installed']." <i>(".$text['message-version-required'].")</i></div>\n";
 	echo "  <div class='actions'>\n";
+	echo button::create(['type'=>'button','label'=>$text['button-whitelist'],'icon'=>$_SESSION['theme']['button_icon_list'],'collapse'=>'hide-xs','style'=>'margin-left: 15px;','link'=>'whitelist.php']);
 	echo button::create(['type'=>'button','label'=>$text['button-reload'],'icon'=>$_SESSION['theme']['button_icon_reload'],'collapse'=>'hide-xs','style'=>'margin-left: 15px;','link'=>'fail2ban.php?reload=1']);
     echo "  </div>\n";
     echo "  <div style='clear: both;'></div>\n";
