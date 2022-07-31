@@ -55,7 +55,7 @@
 		}
 	}
 	if (isset($_POST['action']) && $_POST['action'] == "remove"){
-		if ($service->removeFromWhtelist($_POST['ip'])) {
+		if ($service->removeFromWhitelist($_POST['ip'])) {
 			$message = "<br><span style='font-size:14px;color:green'>".$text['fail2ban-ip']." ".$_POST['ip']." ".$text['fail2ban-whitelist-removed']."</span>";
 		}
 		else{

@@ -30,16 +30,12 @@
 
 //includes
 	require_once "root.php";
-        require_once "resources/require.php";
-        require_once "resources/check_auth.php";
-
+	require_once "resources/require.php";
+	require_once "resources/check_auth.php";
 	require_once "resources/engine.inc.php";
 
 //check permissions
-	if (permission_exists('fail2ban_view')) {
-		//access granted
-	}
-	else {
+	if (!permission_exists('fail2ban_view')) {
 		echo "access denied";
 		exit;
 	}
@@ -167,7 +163,7 @@
 	}
 
 	echo "</table>";
-echo "<div style='color:gray;text-align: center;'><span style='color:gray' class='footer'>".$text['fail2ban-loaded-time'].": ".$service->getDiffTime()." ".$text['fail2ban-loaded-seconds']."</span></div>";
+	echo "<div style='color:gray;text-align: center;'><span style='color:gray' class='footer'>".$text['fail2ban-loaded-time'].": ".$service->getDiffTime()." ".$text['fail2ban-loaded-seconds']."</span></div>";
 
 
 

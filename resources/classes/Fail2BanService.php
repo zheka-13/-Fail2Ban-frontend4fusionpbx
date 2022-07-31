@@ -38,6 +38,22 @@ class Fail2BanService
     /**
      * @return mixed
      */
+    public function getSocket()
+    {
+        return $this->config['socket'];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConf()
+    {
+        return $this->config['conf'];
+    }
+
+    /**
+     * @return mixed
+     */
     public function getJails()
     {
         exec($this->config['bin']." banned", $output);
@@ -109,7 +125,7 @@ class Fail2BanService
         return true;
     }
 
-    public function removeFromWhtelist($ip)
+    public function removeFromWhitelist($ip)
     {
         if (!$this->validateIp($ip)){
             return false;
@@ -184,15 +200,6 @@ class Fail2BanService
         $this->checkAccess();
     }
 
-    public function getSocket()
-    {
-        return $this->config['socket'];
-    }
-
-    public function getConf()
-    {
-        return $this->config['conf'];
-    }
 
 
     public function ban($jail, $ip)
