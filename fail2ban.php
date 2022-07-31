@@ -43,6 +43,7 @@
 		echo "access denied";
 		exit;
 	}
+
 	$service = new Fail2BanService();
 	$language = new text;
 	$text = $language->get();
@@ -102,17 +103,15 @@
     echo "  </div>\n";
     echo "  <div style='clear: both;'></div>\n";
 	echo "</div>\n";
-
 	echo "<form id='form_list' action='fail2ban.php'  method='post'>\n";
 	echo "<input type='hidden' name='action' value='ban'>";
 	echo "  <div class='heading'><b>".$text['fail2ban-manually-ban']."</b></div>\n";
 	echo "  <table><tr><td>".$text['fail2ban-jail'].": <td>";
 	echo "  <select style='width: 200px' class='formfld' name='jail'>";
 	echo "<option value=''>" . $text['fail2ban-select-jail'] . "</option>";
-	foreach ($jails as $key => $jail) {
-		foreach ($jail as $jail_name => $ips) {
-			echo "<option ".(isset($_POST['jail']) && $_POST['jail'] == $jail_name ? "selected" : "")." value='".$jail_name."'>" . $jail_name . "</option>";
-		}
+
+	foreach ($jails as $jail_name => $ips) {
+		echo "<option ".(isset($_POST['jail']) && $_POST['jail'] == $jail_name ? "selected" : "")." value='".$jail_name."'>" . $jail_name . "</option>";
 	}
 	echo "  </select>\n";
 	echo "<td><input type='text' name='ip' placeholder='".$text['fail2ban-placeholder']."' value=''>";
@@ -146,31 +145,29 @@
 	echo "<th nowrap='nowrap'><a href='#'>".$text['fail2ban-ip']."</th>";
 	echo "<th nowrap='nowrap'><a href='#'>".$text['fail2ban-unban']."</th>";
 	echo "</tr>\n";
-	foreach ($jails as $key => $jail) {
-		foreach ($jail as $jail_name => $ips) {
-			if (empty($ips)){
-				continue;
+	foreach ($jails as $jail_name => $ips) {
+		if (empty($ips)){
+			continue;
+		}
+		foreach ($ips as $ip) {
+			echo "<tr>";
+			echo "<td>" . $jail_name;
+			echo "<td>" . $ip['ip'].(!empty($ip['domain']) && $ip['domain'] != $ip['ip'] ? "(".$ip['domain'].")" : "");
+			echo "<td>";
+			if (permission_exists('fail2ban_unban')) {
+				echo "<form id='form_list' action='fail2ban.php'  method='post'>\n";
+				echo "<input type='hidden' name='action' value='unban'>";
+				echo "<input type='hidden' name='ip' value='".$ip['ip']."'>";
+				echo "<input type='hidden' name='jail' value='".$jail_name."'>";
+				echo button::create(['type'=>'submit','label'=>$text['button-unban'],'icon'=>$_SESSION['theme']['button_icon_remove'],'collapse'=>'hide-xs','style'=>'margin-right: 15px;', 'name'=>'unban']);
+				echo "</form>";
 			}
-			foreach ($ips as $ip) {
-				echo "<tr>";
-				echo "<td>" . $jail_name;
-				echo "<td>" . $ip;
-				echo "<td>";
-				if (permission_exists('fail2ban_unban')) {
-					echo "<form id='form_list' action='fail2ban.php'  method='post'>\n";
-					echo "<input type='hidden' name='action' value='unban'>";
-					echo "<input type='hidden' name='ip' value='".$ip."'>";
-					echo "<input type='hidden' name='jail' value='".$jail_name."'>";
-					echo button::create(['type'=>'submit','label'=>$text['button-unban'],'icon'=>$_SESSION['theme']['button_icon_remove'],'collapse'=>'hide-xs','style'=>'margin-right: 15px;', 'name'=>'unban']);
-					echo "</form>";
-				}
-				echo "</tr>";
-			}
+			echo "</tr>";
 		}
 	}
 
 	echo "</table>";
-
+echo "<div style='color:gray;text-align: center;'><span style='color:gray' class='footer'>".$text['fail2ban-loaded-time'].": ".$service->getDiffTime()." ".$text['fail2ban-loaded-seconds']."</span></div>";
 
 
 

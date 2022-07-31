@@ -142,12 +142,12 @@
 	echo "</tr>\n";
 	foreach ($ips as $ip) {
 		echo "<tr>";
-		echo "<td>" . $ip;
+		echo "<td>" . $ip['ip'].(!empty($ip['domain']) && $ip['domain'] != $ip['ip'] ? "(".$ip['domain'].")" : "");
 		echo "<td>";
 		if (permission_exists('fail2ban_whitelist_remove')) {
 			echo "<form id='form_list' action='whitelist.php'  method='post'>\n";
 			echo "<input type='hidden' name='action' value='remove'>";
-			echo "<input type='hidden' name='ip' value='".$ip."'>";
+			echo "<input type='hidden' name='ip' value='".$ip['ip']."'>";
 			echo button::create(['type'=>'submit','label'=>$text['button-remove'],'icon'=>$_SESSION['theme']['button_icon_remove'],'collapse'=>'hide-xs','style'=>'margin-right: 15px;', 'name'=>'remove']);
 			echo "</form>";
 		}
@@ -155,7 +155,7 @@
 	}
 
 	echo "</table>";
-
+	echo "<div style='color:gray;text-align: center;'><span style='color:gray' class='footer'>".$text['fail2ban-loaded-time'].": ".$service->getDiffTime()." ".$text['fail2ban-loaded-seconds']."</span></div>";
 
 
 

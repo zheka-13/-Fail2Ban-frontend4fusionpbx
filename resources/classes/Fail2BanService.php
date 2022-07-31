@@ -4,6 +4,9 @@ class Fail2BanService
 {
     private $config;
 
+    private $start_time = 0;
+
+    private $mailService;
 
     /**
      * @throws Exception
@@ -11,7 +14,8 @@ class Fail2BanService
     public function __construct()
     {
         $this->config = include 'resources/config.inc.php';
-
+        $this->start_time = microtime(true);
+        $this->mailService = new MailService($this->config['emails']);
     }
 
     /**
@@ -24,13 +28,34 @@ class Fail2BanService
     }
 
     /**
+     * @return float
+     */
+    public function getDiffTime()
+    {
+        return round((microtime(true) - $this->start_time), 4);
+    }
+
+    /**
      * @return mixed
      */
     public function getJails()
     {
         exec($this->config['bin']." banned", $output);
         $line = implode("", $output);
-        return json_decode(str_replace("'", '"', $line), true);
+        $jails = json_decode(str_replace("'", '"', $line), true);
+        $new_jails = [];
+        foreach ($jails as $jail){
+            foreach ($jail as $jail_name => $ips){
+                $new_jails[$jail_name] = [];
+                foreach ($ips as $ip){
+                    $new_jails[$jail_name][] = [
+                        "ip" => $ip,
+                        "domain" => ($this->config['use_dns']  ? gethostbyaddr($ip) : null)
+                    ];
+                }
+            }
+        }
+        return $new_jails;
     }
 
     public function addToWhitelist($ip)
@@ -80,6 +105,7 @@ class Fail2BanService
         $lines[$conf_index] = "ignoreip = ".implode(" ", $ips);
         file_put_contents($this->config['conf'], implode("\n", $lines));
         $this->reload();
+        $this->mailService->addedToWhitelist($ip);
         return true;
     }
 
@@ -109,6 +135,7 @@ class Fail2BanService
         $lines[$conf_index] = "ignoreip = ".implode(" ", $ips);
         file_put_contents($this->config['conf'], implode("\n", $lines));
         $this->reload();
+        $this->mailService->removedFromWhitelist($ip);
         return true;
     }
 
@@ -123,7 +150,15 @@ class Fail2BanService
                 break;
             }
         }
-        return $this->getIpsFromString($conf_line);
+        $ips =  $this->getIpsFromString($conf_line);
+        $new_ips = [];
+        foreach ($ips as $ip){
+            $new_ips[] = [
+                "ip" => $ip,
+                "domain" => ($this->config['use_dns']  ? gethostbyaddr($ip) : null)
+            ];
+        }
+        return $new_ips;
     }
 
     /**
@@ -169,6 +204,7 @@ class Fail2BanService
             exec($this->config['bin']." set ".$jail." banip ".$ip, $output);
             $line = trim(implode("", $output));
             if ($line == "1"){
+                $this->mailService->addedToBlacklist($ip);
                 return true;
             }
         }
@@ -186,6 +222,7 @@ class Fail2BanService
         exec($this->config['bin']." set ".$jail." unbanip ".$ip, $output);
         $line = trim(implode("", $output));
         if ($line == "1"){
+            $this->mailService->removedFromBlacklist($ip);
             return true;
         }
         return false;
@@ -254,6 +291,10 @@ class Fail2BanService
         }
         return $ips;
     }
+
+
+
+
 
 
 }

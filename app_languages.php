@@ -13,8 +13,10 @@ $text['fail2ban-jail']['en-us'] = "Jail";
 $text['fail2ban-select-jail']['en-us'] = "- Select Jail -";
 $text['fail2ban-ip']['en-us'] = "Ip address";
 $text['fail2ban-added']['en-us'] = "added to jail";
+$text['fail2ban-added-blacklist']['en-us'] = "added to blacklist";
 $text['fail2ban-whitelisted']['en-us'] = "added to whitelist";
 $text['fail2ban-removed']['en-us'] = "removed from jail";
+$text['fail2ban-removed-blacklist']['en-us'] = "removed from blacklist";
 $text['fail2ban-whitelist-removed']['en-us'] = "removed from whitelist";
 $text['fail2ban-add-error']['en-us'] = "Failed to add Ip address";
 $text['fail2ban-whitelist-error']['en-us'] = "Failed to add Ip address to whitelist";
@@ -32,4 +34,11 @@ $text['fail2ban-unban']['en-us'] = "Unban";
 $text['fail2ban-remove']['en-us'] = "Remove";
 $text['button-whitelist']['en-us'] = "Whitelist";
 $text['button-blacklist']['en-us'] = "Blacklist";
+$text['fail2ban-loaded-time']['en-us'] = "Page loaded in";
+$text['fail2ban-loaded-seconds']['en-us'] = "seconds";
+
+$text['fail2ban-mail-blacklist-add-subject']['en-us'] = "seconds";
+$text['fail2ban-by-user']['en-us'] = "by user";
+$text['fail2ban-action-time']['en-us'] = "Action time";
+
 ?>
