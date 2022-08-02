@@ -8,6 +8,7 @@ class Fail2BanService
 
     private $mailService;
 
+
     /**
      * @throws Exception
      */
@@ -74,7 +75,7 @@ class Fail2BanService
         return $new_jails;
     }
 
-    public function addToWhitelist($ip)
+    public function addToWhitelist($ip, $desc)
     {
         if (!$this->validateIp($ip)){
             return false;
@@ -117,8 +118,35 @@ class Fail2BanService
         if ($conf_index == 0){
             return false;
         }
-
         $lines[$conf_index] = "ignoreip = ".implode(" ", $ips);
+        //---------data
+        $data_index = 0;
+        foreach ($lines as $key => $line){
+            if (strpos($line, "#fusionpbx_whitelist_data:") !== false){
+                $data_index = $key;
+                break;
+            }
+        }
+        if (empty($data_index)){
+            $data = [];
+        }
+        else{
+            $data = json_decode(str_replace("#fusionpbx_whitelist_data:", "",  $lines[$data_index]), true);
+            if (empty($data)){
+                $data = [];
+            }
+        }
+        $data[$ip] = [
+            "desc" => $desc,
+            "date" => date("d.m.Y H:i:s")
+        ];
+        if (empty($data_index)){
+            $lines[] = "#fusionpbx_whitelist_data:".json_encode($data);
+        }
+        else{
+            $lines[$data_index] = "#fusionpbx_whitelist_data:".json_encode($data);
+        }
+        //--------------------------------------
         file_put_contents($this->config['conf'], implode("\n", $lines));
         $this->reload();
         $this->mailService->addedToWhitelist($ip);
@@ -149,6 +177,24 @@ class Fail2BanService
             unset($ips[$ip_key]);
         }
         $lines[$conf_index] = "ignoreip = ".implode(" ", $ips);
+
+        $data_index = 0;
+        foreach ($lines as $key => $line){
+            if (strpos($line, "#fusionpbx_whitelist_data:") !== false){
+                $data_index = $key;
+                break;
+            }
+        }
+        if (!empty($data_index)){
+            $data = json_decode(str_replace("#fusionpbx_whitelist_data:", "",  $lines[$data_index]), true);
+            if (empty($data)){
+                $data = [];
+            }
+            if (isset($data[$ip])){
+                unset($data[$ip]);
+                $lines[$data_index] = "#fusionpbx_whitelist_data:".json_encode($data);
+            }
+        }
         file_put_contents($this->config['conf'], implode("\n", $lines));
         $this->reload();
         $this->mailService->removedFromWhitelist($ip);
@@ -166,12 +212,24 @@ class Fail2BanService
                 break;
             }
         }
+        $data = [];
+        foreach ($lines as $line){
+            if (strpos($line, "#fusionpbx_whitelist_data:") !== false){
+                $data = json_decode(str_replace("#fusionpbx_whitelist_data:", "",  $line), true);
+                break;
+            }
+        }
+        if (empty($data)){
+            $data = [];
+        }
         $ips =  $this->getIpsFromString($conf_line);
         $new_ips = [];
         foreach ($ips as $ip){
             $new_ips[] = [
                 "ip" => $ip,
-                "domain" => ($this->config['use_dns']  ? gethostbyaddr($ip) : null)
+                "domain" => ($this->config['use_dns']  ? gethostbyaddr($ip) : null),
+                "desc" => (!empty($data[$ip]['desc']) ? $data[$ip]['desc']: ""),
+                "date" => (!empty($data[$ip]['date']) ? $data[$ip]['date']: ""),
             ];
         }
         return $new_ips;

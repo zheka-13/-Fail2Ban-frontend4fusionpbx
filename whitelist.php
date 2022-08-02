@@ -47,7 +47,7 @@
 	$language = new text;
 	$text = $language->get();
 	if (isset($_POST['action']) && $_POST['action'] == "add"){
-		if ($service->addToWhitelist($_POST['ip'])) {
+		if ($service->addToWhitelist($_POST['ip'], $_POST['desc'])) {
 			$message = "<br><span style='font-size:14px;color:green'>".$text['fail2ban-ip']." ".$_POST['ip']." ".$text['fail2ban-whitelisted']."</span>";
 		}
 		else{
@@ -111,6 +111,7 @@
 	echo "  <div class='heading'><b>".$text['fail2ban-manually-whitelist']."</b></div>\n";
 	echo "  <table><tr>";
 	echo "<td><input type='text' name='ip' placeholder='".$text['fail2ban-placeholder']."' value=''>";
+	echo "<td><input type='text' name='desc' style='width: 400px' placeholder='".$text['fail2ban-description']."' value=''>";
 	echo "<td>";
 	if (permission_exists('fail2ban_whitelist_add')) {
 		echo button::create(['type'=>'submit','label'=>$text['button-add'],'icon'=>$_SESSION['theme']['button_icon_add'],'collapse'=>'hide-xs','style'=>'margin-right: 15px;', 'name'=>'add']);
@@ -138,11 +139,15 @@
 	echo "<table class='tr_hover' width='100%' border='0' cellpadding='0' cellspacing='0'>\n";
 	echo "<tr>\n";
 	echo "<th nowrap='nowrap'><a href='#'>".$text['fail2ban-ip']."</th>";
+	echo "<th nowrap='nowrap'><a href='#'>".$text['fail2ban-description']."</th>";
+	echo "<th nowrap='nowrap'><a href='#'>".$text['fail2ban-date']."</th>";
 	echo "<th nowrap='nowrap'><a href='#'>".$text['fail2ban-remove']."</th>";
 	echo "</tr>\n";
 	foreach ($ips as $ip) {
 		echo "<tr>";
 		echo "<td>" . $ip['ip'].(!empty($ip['domain']) && $ip['domain'] != $ip['ip'] ? "(".$ip['domain'].")" : "");
+		echo "<td>".(!empty($ip['desc']) ? $ip['desc'] : "");
+		echo "<td>".(!empty($ip['date']) ? $ip['date'] : "");
 		echo "<td>";
 		if (permission_exists('fail2ban_whitelist_remove')) {
 			echo "<form id='form_list' action='whitelist.php'  method='post'>\n";
