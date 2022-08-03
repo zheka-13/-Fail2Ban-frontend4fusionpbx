@@ -110,8 +110,8 @@
 	echo "<input type='hidden' name='action' value='add'>";
 	echo "  <div class='heading'><b>".$text['fail2ban-manually-whitelist']."</b></div>\n";
 	echo "  <table><tr>";
-	echo "<td><input type='text' name='ip' placeholder='".$text['fail2ban-placeholder']."' value=''>";
-	echo "<td><input type='text' name='desc' style='width: 400px' placeholder='".$text['fail2ban-description']."' value=''>";
+	echo "<td><input type='text' class='formfld' name='ip' placeholder='".$text['fail2ban-placeholder']."' value=''>";
+	echo "<td><input type='text' class='formfld' name='desc' style='width: 400px' placeholder='".$text['fail2ban-description']."' value=''>";
 	echo "<td>";
 	if (permission_exists('fail2ban_whitelist_add')) {
 		echo button::create(['type'=>'submit','label'=>$text['button-add'],'icon'=>$_SESSION['theme']['button_icon_add'],'collapse'=>'hide-xs','style'=>'margin-right: 15px;', 'name'=>'add']);

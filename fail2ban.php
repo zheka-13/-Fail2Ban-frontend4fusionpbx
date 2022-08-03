@@ -110,7 +110,7 @@
 		echo "<option ".(isset($_POST['jail']) && $_POST['jail'] == $jail_name ? "selected" : "")." value='".$jail_name."'>" . $jail_name . "</option>";
 	}
 	echo "  </select>\n";
-	echo "<td><input type='text' name='ip' placeholder='".$text['fail2ban-placeholder']."' value=''>";
+	echo "<td><input type='text' class='formfld' name='ip' placeholder='".$text['fail2ban-placeholder']."' value=''>";
 	echo "<td>";
 	if (permission_exists('fail2ban_ban')) {
 		echo button::create(['type'=>'submit','label'=>$text['button-ban'],'icon'=>$_SESSION['theme']['button_icon_add'],'collapse'=>'hide-xs','style'=>'margin-right: 15px;', 'name'=>'ban']);
